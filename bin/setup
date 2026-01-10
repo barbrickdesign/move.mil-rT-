@@ -9,12 +9,17 @@ include FileUtils
 APP_ROOT = Pathname.new File.expand_path('..', __dir__)
 RUBY_VERSION_FILE = APP_ROOT.join('.ruby-version')
 
+def read_required_ruby_version
+  return nil unless File.exist?(RUBY_VERSION_FILE)
+  
+  File.read(RUBY_VERSION_FILE).strip
+rescue Errno::EPERM, IOError => e
+  warn "Warning: Could not read .ruby-version file: #{e.message}"
+  nil
+end
+
 def show_help
-  begin
-    ruby_version = File.read(RUBY_VERSION_FILE).strip
-  rescue Errno::ENOENT, Errno::EPERM
-    ruby_version = 'version specified in .ruby-version'
-  end
+  ruby_version = read_required_ruby_version || 'version specified in .ruby-version'
   
   puts <<~HELP
     Usage: bin/setup [OPTIONS]
@@ -38,15 +43,10 @@ def show_help
 end
 
 def check_ruby_version
-  unless File.exist?(RUBY_VERSION_FILE)
-    warn "\n== Warning: .ruby-version file not found =="
-    return
-  end
+  required_version = read_required_ruby_version
   
-  begin
-    required_version = File.read(RUBY_VERSION_FILE).strip
-  rescue Errno::EPERM, IOError => e
-    warn "\n== Warning: Could not read .ruby-version file: #{e.message} =="
+  unless required_version
+    warn "\n== Warning: Could not determine required Ruby version =="
     return
   end
   
