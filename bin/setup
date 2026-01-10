@@ -7,11 +7,12 @@ include FileUtils
 
 # path to your application root.
 APP_ROOT = Pathname.new File.expand_path('..', __dir__)
+RUBY_VERSION_FILE = APP_ROOT.join('.ruby-version')
 
 def show_help
   begin
-    ruby_version = File.read(APP_ROOT.join('.ruby-version')).strip
-  rescue
+    ruby_version = File.read(RUBY_VERSION_FILE).strip
+  rescue Errno::ENOENT, Errno::EPERM
     ruby_version = '2.4.2 (or version specified in .ruby-version)'
   end
   
@@ -37,14 +38,12 @@ def show_help
 end
 
 def check_ruby_version
-  ruby_version_file = APP_ROOT.join('.ruby-version')
-  
-  unless File.exist?(ruby_version_file)
+  unless File.exist?(RUBY_VERSION_FILE)
     warn "\n== Warning: .ruby-version file not found =="
     return
   end
   
-  required_version = File.read(ruby_version_file).strip
+  required_version = File.read(RUBY_VERSION_FILE).strip
   current_version = RUBY_VERSION
   
   return if Gem::Version.new(current_version) >= Gem::Version.new(required_version)
