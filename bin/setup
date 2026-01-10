@@ -11,7 +11,6 @@ RUBY_VERSION_FILE = APP_ROOT.join('.ruby-version')
 
 def read_required_ruby_version
   return nil unless File.exist?(RUBY_VERSION_FILE)
-  
   File.read(RUBY_VERSION_FILE).strip
 rescue Errno::EPERM, IOError => e
   warn "Warning: Could not read .ruby-version file: #{e.message}"
@@ -19,7 +18,7 @@ rescue Errno::EPERM, IOError => e
 end
 
 def show_help
-  ruby_version = read_required_ruby_version || 'version specified in .ruby-version'
+  ruby_version = read_required_ruby_version || 'latest stable version (see .ruby-version file)'
   
   puts <<~HELP
     Usage: bin/setup [OPTIONS]
@@ -51,7 +50,6 @@ def check_ruby_version
   end
   
   current_version = RUBY_VERSION
-  
   return if Gem::Version.new(current_version) >= Gem::Version.new(required_version)
   
   abort <<~ERROR
