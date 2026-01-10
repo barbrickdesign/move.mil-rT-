@@ -24,7 +24,8 @@ show_help if ARGV.include?('-h') || ARGV.include?('--help')
 VENDOR_PATH = File.expand_path('..', __dir__)
 Dir.chdir(VENDOR_PATH) do
   begin
-    exec "yarnpkg #{ARGV.join(' ')}"
+    # Use exec with array form to prevent command injection
+    exec('yarnpkg', *ARGV)
   rescue Errno::ENOENT
     abort <<~ERROR
       

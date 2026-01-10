@@ -13,7 +13,7 @@ def show_help
   begin
     ruby_version = File.read(RUBY_VERSION_FILE).strip
   rescue Errno::ENOENT, Errno::EPERM
-    ruby_version = '2.4.2 (or version specified in .ruby-version)'
+    ruby_version = 'version specified in .ruby-version'
   end
   
   puts <<~HELP
@@ -43,7 +43,13 @@ def check_ruby_version
     return
   end
   
-  required_version = File.read(RUBY_VERSION_FILE).strip
+  begin
+    required_version = File.read(RUBY_VERSION_FILE).strip
+  rescue Errno::EPERM, IOError => e
+    warn "\n== Warning: Could not read .ruby-version file: #{e.message} =="
+    return
+  end
+  
   current_version = RUBY_VERSION
   
   return if Gem::Version.new(current_version) >= Gem::Version.new(required_version)
