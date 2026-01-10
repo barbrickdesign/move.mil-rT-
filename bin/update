@@ -8,9 +8,28 @@ include FileUtils
 # path to your application root.
 APP_ROOT = Pathname.new File.expand_path('..', __dir__)
 
+def show_help
+  puts <<~HELP
+    Usage: bin/update [OPTIONS]
+
+    This script updates your development environment:
+    - Updates Ruby dependencies (gems)
+    - Runs database migrations
+    - Clears logs and temporary files
+
+    Options:
+      -h, --help     Show this help message
+
+    For more information, see CONTRIBUTING.md
+  HELP
+  exit 0
+end
+
 def system!(*args)
   system(*args) || abort("\n== Command #{args} failed ==")
 end
+
+show_help if ARGV.include?('-h') || ARGV.include?('--help')
 
 chdir APP_ROOT do
   # This script is a way to update your development environment automatically.
@@ -28,4 +47,7 @@ chdir APP_ROOT do
 
   # puts "\n== Restarting application server =="
   # system! 'bin/rails restart'
+
+  puts "\n== Update complete! =="
+  puts "Restart the server if it's currently running."
 end

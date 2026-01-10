@@ -1,4 +1,25 @@
 #!/usr/bin/env ruby
+
+# Show help if requested
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts <<~HELP
+    Usage: bin/rubocop [OPTIONS] [FILE1, FILE2, ...]
+
+    This script runs RuboCop to check code style and quality.
+
+    Examples:
+      bin/rubocop                Run RuboCop on all files
+      bin/rubocop app/models     Run RuboCop on specific directory
+      bin/rubocop -a             Auto-correct offenses
+      bin/rubocop --help         Show RuboCop help
+
+    Configuration: .rubocop.yml
+
+    For more information, see: https://github.com/rubocop-hq/rubocop
+  HELP
+  exit 0
+end
+
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 
 require 'rubygems'

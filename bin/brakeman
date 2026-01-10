@@ -1,4 +1,22 @@
 #!/usr/bin/env ruby
+
+# Show help if requested
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts <<~HELP
+    Usage: bin/brakeman [OPTIONS]
+
+    This script runs Brakeman security scanner to check for vulnerabilities.
+
+    Examples:
+      bin/brakeman               Run security scan
+      bin/brakeman -o report.html Generate HTML report
+      bin/brakeman --help        Show Brakeman help
+
+    For more information, see: https://brakemanscanner.org
+  HELP
+  exit 0
+end
+
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 
 require 'rubygems'

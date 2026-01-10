@@ -8,15 +8,75 @@ include FileUtils
 # path to your application root.
 APP_ROOT = Pathname.new File.expand_path('..', __dir__)
 
+def show_help
+  puts <<~HELP
+    Usage: bin/setup [OPTIONS]
+
+    This script sets up the application for development:
+    - Installs Ruby dependencies (gems)
+    - Creates environment configuration file (.env)
+    - Sets up the database
+
+    Options:
+      -h, --help     Show this help message
+
+    Requirements:
+      - Ruby #{File.read(APP_ROOT.join('.ruby-version')).strip}
+      - PostgreSQL 9.6 or higher
+      - Bundler gem
+
+    For more information, see CONTRIBUTING.md
+  HELP
+  exit 0
+end
+
+def check_ruby_version
+  required_version = File.read(APP_ROOT.join('.ruby-version')).strip
+  current_version = RUBY_VERSION
+  
+  return if Gem::Version.new(current_version) >= Gem::Version.new(required_version)
+  
+  abort <<~ERROR
+    
+    == Ruby version mismatch ==
+    Required: Ruby #{required_version}
+    Current:  Ruby #{current_version}
+    
+    Please install Ruby #{required_version} using a version manager like rbenv or rvm.
+  ERROR
+end
+
+def check_postgresql
+  return if system('which psql > /dev/null 2>&1')
+  
+  warn <<~WARNING
+    
+    == Warning: PostgreSQL not found ==
+    PostgreSQL is required for this application.
+    
+    Install PostgreSQL:
+      macOS:  brew install postgresql
+      Linux:  sudo apt-get install postgresql
+    
+    Or visit: https://www.postgresql.org/download/
+  WARNING
+end
+
 def system!(*args)
   system(*args) || abort("\n== Command #{args} failed ==")
 end
 
+show_help if ARGV.include?('-h') || ARGV.include?('--help')
+
 chdir APP_ROOT do
+  puts "\n== Checking system requirements =="
+  check_ruby_version
+  check_postgresql
+
   # This script is a starting point to setup your application.
   # Add necessary setup steps to this file.
 
-  puts '== Installing dependencies =='
+  puts "\n== Installing dependencies =="
   system! 'gem install bundler --conservative'
   system('bundle check') || system!('bundle install')
 
@@ -31,10 +91,16 @@ chdir APP_ROOT do
   require 'dotenv/load'
 
   puts "\n== Creating development environment configuration variables =="
-  system! 'echo "export GOOGLE_MAPS_API_KEY=" >> .env' if ENV['GOOGLE_MAPS_API_KEY'].nil?
+  if ENV['GOOGLE_MAPS_API_KEY'].nil?
+    system! 'echo "export GOOGLE_MAPS_API_KEY=" >> .env'
+    puts "   Note: Add your Google Maps API key to .env file"
+  end
   system! 'echo "export SECRET_KEY_BASE=$(bin/rails secret)" >> .env' if ENV['SECRET_KEY_BASE'].nil?
   system! 'echo "export SEEDS_ENC_IV=1848E8B20939E8E446A57C9C6745B9E2" >> .env' if ENV['SEEDS_ENC_IV'].nil?
-  system! 'echo "export SEEDS_ENC_KEY=" >> .env' if ENV['SEEDS_ENC_KEY'].nil?
+  if ENV['SEEDS_ENC_KEY'].nil?
+    system! 'echo "export SEEDS_ENC_KEY=" >> .env'
+    puts "   Note: Add SEEDS_ENC_KEY to .env file to work with encrypted seed data"
+  end
 
   puts "\n== Preparing database =="
   system! 'bin/rails db:setup'
@@ -44,4 +110,8 @@ chdir APP_ROOT do
 
   # puts "\n== Restarting application server =="
   # system! 'bin/rails restart'
+
+  puts "\n== Setup complete! =="
+  puts "Start the server with: bin/rails server"
+  puts "Visit the application at: http://localhost:3000"
 end

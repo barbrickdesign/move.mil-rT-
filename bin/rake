@@ -1,4 +1,24 @@
 #!/usr/bin/env ruby
+
+# Show help if requested
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts <<~HELP
+    Usage: bin/rake [TASK] [ARGS]
+
+    This script runs Rake tasks for the application.
+
+    Common tasks:
+      bin/rake -T                List all available tasks
+      bin/rake db:migrate        Run database migrations
+      bin/rake db:seed           Load seed data
+      bin/rake assets:precompile Precompile assets
+      bin/rake --help            Show Rake help
+
+    For more information, see: https://github.com/ruby/rake
+  HELP
+  exit 0
+end
+
 require_relative '../config/boot'
 require 'rake'
 Rake.application.run
