@@ -9,6 +9,12 @@ include FileUtils
 APP_ROOT = Pathname.new File.expand_path('..', __dir__)
 
 def show_help
+  begin
+    ruby_version = File.read(APP_ROOT.join('.ruby-version')).strip
+  rescue
+    ruby_version = '2.4.2 (or version specified in .ruby-version)'
+  end
+  
   puts <<~HELP
     Usage: bin/setup [OPTIONS]
 
@@ -21,7 +27,7 @@ def show_help
       -h, --help     Show this help message
 
     Requirements:
-      - Ruby #{File.read(APP_ROOT.join('.ruby-version')).strip}
+      - Ruby #{ruby_version}
       - PostgreSQL 9.6 or higher
       - Bundler gem
 
@@ -31,7 +37,14 @@ def show_help
 end
 
 def check_ruby_version
-  required_version = File.read(APP_ROOT.join('.ruby-version')).strip
+  ruby_version_file = APP_ROOT.join('.ruby-version')
+  
+  unless File.exist?(ruby_version_file)
+    warn "\n== Warning: .ruby-version file not found =="
+    return
+  end
+  
+  required_version = File.read(ruby_version_file).strip
   current_version = RUBY_VERSION
   
   return if Gem::Version.new(current_version) >= Gem::Version.new(required_version)
