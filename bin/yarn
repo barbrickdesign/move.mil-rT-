@@ -1,11 +1,43 @@
 #!/usr/bin/env ruby
+
+def show_help
+  puts <<~HELP
+    Usage: bin/yarn [YARN_ARGUMENTS...]
+
+    This script runs Yarn package manager commands.
+
+    Options:
+      -h, --help     Show this help message
+
+    Examples:
+      bin/yarn install           Install dependencies
+      bin/yarn add package-name  Add a new package
+      bin/yarn upgrade           Upgrade packages
+
+    For more Yarn commands, visit: https://yarnpkg.com/en/docs/cli/
+  HELP
+  exit 0
+end
+
+show_help if ARGV.include?('-h') || ARGV.include?('--help')
+
 VENDOR_PATH = File.expand_path('..', __dir__)
 Dir.chdir(VENDOR_PATH) do
   begin
-    exec "yarnpkg #{ARGV.join(' ')}"
+    # Use exec with array form to prevent command injection
+    exec('yarnpkg', *ARGV)
   rescue Errno::ENOENT
-    warn 'Yarn executable was not detected in the system.'
-    warn 'Download Yarn at https://yarnpkg.com/en/docs/install'
-    exit 1
+    abort <<~ERROR
+      
+      == Yarn executable was not detected in the system ==
+      
+      Yarn is required to manage JavaScript dependencies.
+      
+      Download and install Yarn:
+        macOS:  brew install yarn
+        Linux:  npm install -g yarn
+      
+      Or visit: https://yarnpkg.com/en/docs/install
+    ERROR
   end
 end

@@ -1,3 +1,23 @@
 #!/usr/bin/env ruby
+
+# Show help if requested
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts <<~HELP
+    Usage: bin/bundle [COMMAND] [OPTIONS]
+
+    This script runs Bundler to manage Ruby gem dependencies.
+
+    Common commands:
+      bin/bundle install         Install gems from Gemfile
+      bin/bundle update          Update gems to latest versions
+      bin/bundle exec COMMAND    Run command in context of bundle
+      bin/bundle check           Check if dependencies are satisfied
+      bin/bundle --help          Show Bundler help
+
+    For more information, see: https://bundler.io
+  HELP
+  exit 0
+end
+
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 load Gem.bin_path('bundler', 'bundle')

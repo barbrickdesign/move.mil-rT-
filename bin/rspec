@@ -1,4 +1,23 @@
 #!/usr/bin/env ruby
+
+# Show help if requested
+if ARGV.include?('-h') || ARGV.include?('--help')
+  puts <<~HELP
+    Usage: bin/rspec [RSPEC_OPTIONS] [FILES or DIRECTORIES]
+
+    This script runs RSpec tests for the application.
+
+    Examples:
+      bin/rspec                          Run all tests
+      bin/rspec spec/models              Run tests in spec/models
+      bin/rspec spec/models/user_spec.rb Run a specific test file
+      bin/rspec --help                   Show RSpec help
+
+    For more RSpec options, see: http://rspec.info
+  HELP
+  exit 0
+end
+
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 
 require 'rubygems'
